@@ -1,7 +1,32 @@
 import Wrapper from "./assets/Wrapper";
-import { authGoogle, authNotion, transfer } from "./handlers";
+import { useAppContext } from "./handlers";
+import { useEffect } from "react";
 
 const App = () => {
+    const {
+        authNotion,
+        authGoogleGetToken,
+        authGoogleRedirect,
+        transfer,
+        notionIsLoading,
+        googleIsLoading,
+        notionAuthDone,
+        googleAuthDone,
+    } = useAppContext();
+
+    // detech if callback from OAuth is done
+    useEffect(() => {
+        const url = new URL(window.location.href);
+        // get the 'code' query parameter
+        const authCode = url.searchParams.get("code");
+        console.log(authCode);
+        // hand code to backend for token exchange
+        if (authCode) {
+            console.log("about to call get token");
+            authGoogleGetToken(authCode);
+        }
+    }, []);
+
     return (
         <Wrapper className="full-page">
             <h1>notog</h1>
@@ -14,7 +39,12 @@ const App = () => {
                         authNotion();
                     }}
                 >
-                    Log me in!
+                    {" "}
+                    {notionIsLoading
+                        ? "Loading..."
+                        : notionAuthDone
+                        ? "Success!"
+                        : "Log me In!"}
                 </button>
             </div>
             <div>
@@ -23,10 +53,17 @@ const App = () => {
                     type="button"
                     className="btn"
                     onClick={() => {
-                        authGoogle();
+                        if (googleIsLoading || googleAuthDone) {
+                            return;
+                        }
+                        authGoogleRedirect();
                     }}
                 >
-                    Log me in!
+                    {googleIsLoading
+                        ? "Loading..."
+                        : googleAuthDone
+                        ? "Success!"
+                        : "Log me In!"}
                 </button>
             </div>
 

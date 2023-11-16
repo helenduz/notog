@@ -37,6 +37,7 @@ const Wrapper = styled.section`
         width: 20%;
         background-color: salmon;
         font-family: "Roboto Slab", Sans-Serif;
+        font-size: medium;
     }
     .member-btn {
         margin-top: 2rem;
