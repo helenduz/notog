@@ -17,6 +17,7 @@ const appInfoReducer = (state, action) => {
             ...state,
             googleIsLoading: false,
             googleAuthDone: true,
+            googleToken: action.token,
         };
     }
     if (action.type === START_NOTION_LOADING) {

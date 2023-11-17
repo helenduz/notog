@@ -8,11 +8,23 @@ import {
     NOTION_AUTH_DONE,
 } from "./actions";
 
+const notionTokenLocal = localStorage.getItem("notionToken");
+const googleTokenLocal = localStorage.getItem("googleToken");
+
+const storeGoogleToken = ({ googleToken }) => {
+    localStorage.setItem("googleToken", googleToken);
+};
+const storeNotionToken = ({ notionToken }) => {
+    localStorage.setItem("notionToken", notionToken);
+};
+
 const initialAppInfo = {
     notionIsLoading: false,
     googleIsLoading: false,
     notionAuthDone: false,
     googleAuthDone: false,
+    notionToken: notionTokenLocal,
+    googleToken: googleTokenLocal,
 };
 
 const AppInfoContext = React.createContext(null);
@@ -42,16 +54,21 @@ const AppProvider = ({ children }) => {
             dispatch({
                 type: START_GOOGLE_LOADING,
             });
-            await axios.post("/getToken", {
+            const res = await axios.post("/getToken", {
                 code,
+            });
+            console.log(res);
+            storeGoogleToken({
+                googleToken: res.data.token,
+            });
+            dispatch({
+                type: GOOGLE_AUTH_DONE,
+                token: res.data.token,
             });
         } catch (error) {
             console.log(error);
             return;
         }
-        dispatch({
-            type: GOOGLE_AUTH_DONE,
-        });
     };
 
     const transfer = (event) => {

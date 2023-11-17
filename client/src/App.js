@@ -12,12 +12,17 @@ const App = () => {
         googleIsLoading,
         notionAuthDone,
         googleAuthDone,
+        googleToken,
     } = useAppContext();
 
     // detech if callback from OAuth is done
     useEffect(() => {
+        // check if token already stored
+        if (googleToken !== null) {
+            return;
+        }
+        // get the 'code' query parameter from URL
         const url = new URL(window.location.href);
-        // get the 'code' query parameter
         const authCode = url.searchParams.get("code");
         console.log(authCode);
         // hand code to backend for token exchange

@@ -13,14 +13,14 @@ app.use(express.json());
 // Google OAuth setups and routes
 import { google } from "googleapis";
 const SCOPE = ["https://www.googleapis.com/auth/documents"];
-const oAuth2Client = new google.auth.OAuth2(
+const googleOAuth2Client = new google.auth.OAuth2(
     process.env.G_CLIENT_ID, // Client ID
     process.env.G_CLIENT_SECRET, // Client Secret
     process.env.G_REDIRECT_URL // Redirect URL after authentication
 );
 
 app.get("/getAuthURL", (req, res) => {
-    const authURL = oAuth2Client.generateAuthUrl({
+    const authURL = googleOAuth2Client.generateAuthUrl({
         access_type: "offline",
         scope: SCOPE,
     });
@@ -31,14 +31,14 @@ app.get("/getAuthURL", (req, res) => {
 app.post("/getToken", (req, res) => {
     if (req.body.code == null)
         return res.status(StatusCodes.BAD_REQUEST).send("Invalid Request");
-    oAuth2Client.getToken(req.body.code, (err, token) => {
+    googleOAuth2Client.getToken(req.body.code, (err, token) => {
         if (err) {
             console.error("Error retrieving access token", err);
             return res.status(StatusCodes.BAD_REQUEST);
         }
-        oAuth2Client.setCredentials(token);
+        googleOAuth2Client.setCredentials(token);
         console.log(token);
-        res.status(StatusCodes.OK).json();
+        res.status(StatusCodes.OK).json({ token });
     });
 });
 
@@ -56,3 +56,5 @@ const start = async () => {
 };
 
 start();
+
+export { googleOAuth2Client }; // note: should just change this to a parameter passed to functions that calls the APIs
