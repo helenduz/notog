@@ -8,9 +8,9 @@ import {
     NOTION_AUTH_DONE,
 } from "./actions";
 
+// local storage for tokens
 const notionTokenLocal = localStorage.getItem("notionToken");
 const googleTokenLocal = localStorage.getItem("googleToken");
-
 const storeGoogleToken = ({ googleToken }) => {
     localStorage.setItem("googleToken", googleToken);
 };
@@ -18,11 +18,10 @@ const storeNotionToken = ({ notionToken }) => {
     localStorage.setItem("notionToken", notionToken);
 };
 
+// context/reducer setup
 const initialAppInfo = {
     notionIsLoading: false,
     googleIsLoading: false,
-    notionAuthDone: false,
-    googleAuthDone: false,
     notionToken: notionTokenLocal,
     googleToken: googleTokenLocal,
 };
@@ -33,8 +32,38 @@ const DispatchContext = React.createContext(null);
 const AppProvider = ({ children }) => {
     const [appInfo, dispatch] = useReducer(appInfoReducer, initialAppInfo);
 
-    const authNotion = () => {
-        console.log("authorize to Notion");
+    // handlers for calling backend endpoints
+    const authNotionRedirect = async () => {
+        try {
+            // get auth URL
+            const response = await axios.get("/getNotionAuthURL");
+            const { authURL } = response.data;
+            // redirect
+            window.location.href = authURL;
+        } catch (error) {
+            console.log(error);
+        }
+    };
+
+    const authNotionGetToken = async (code) => {
+        try {
+            dispatch({
+                type: START_NOTION_LOADING,
+            });
+            const res = await axios.post("/getNotionToken", {
+                code,
+            });
+            console.log(res);
+            storeNotionToken({
+                notionToken: res.data.token,
+            });
+            dispatch({
+                type: NOTION_AUTH_DONE,
+                token: res.data.token,
+            });
+        } catch (error) {
+            console.log(error);
+        }
     };
 
     const authGoogleRedirect = async () => {
@@ -67,7 +96,6 @@ const AppProvider = ({ children }) => {
             });
         } catch (error) {
             console.log(error);
-            return;
         }
     };
 
@@ -81,9 +109,10 @@ const AppProvider = ({ children }) => {
         <AppInfoContext.Provider
             value={{
                 ...appInfo,
-                authNotion,
-                authGoogleGetToken,
+                authNotionRedirect,
+                authNotionGetToken,
                 authGoogleRedirect,
+                authGoogleGetToken,
                 transfer,
             }}
         >

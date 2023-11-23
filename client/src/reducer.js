@@ -16,7 +16,6 @@ const appInfoReducer = (state, action) => {
         return {
             ...state,
             googleIsLoading: false,
-            googleAuthDone: true,
             googleToken: action.token,
         };
     }
@@ -30,7 +29,7 @@ const appInfoReducer = (state, action) => {
         return {
             ...state,
             notionIsLoading: false,
-            notionAuthDone: true,
+            notionToken: action.token,
         };
     }
 };

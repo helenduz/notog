@@ -4,31 +4,37 @@ import { useEffect } from "react";
 
 const App = () => {
     const {
-        authNotion,
+        authNotionGetToken,
+        authNotionRedirect,
         authGoogleGetToken,
         authGoogleRedirect,
         transfer,
         notionIsLoading,
         googleIsLoading,
-        notionAuthDone,
-        googleAuthDone,
+        notionToken,
         googleToken,
     } = useAppContext();
 
-    // detech if callback from OAuth is done
+    // detect if callback from OAuth is done
     useEffect(() => {
-        // check if token already stored
-        if (googleToken !== null) {
-            return;
-        }
         // get the 'code' query parameter from URL
         const url = new URL(window.location.href);
         const authCode = url.searchParams.get("code");
         console.log(authCode);
         // hand code to backend for token exchange
         if (authCode) {
-            console.log("about to call get token");
-            authGoogleGetToken(authCode);
+            const scope = url.searchParams.get("scope");
+            // callback is from google
+            if (scope) {
+                if (googleToken == null) {
+                    authGoogleGetToken(authCode);
+                }
+            } else {
+                // callback is from notion
+                if (notionToken == null) {
+                    authNotionGetToken(authCode);
+                }
+            }
         }
     }, []);
 
@@ -41,13 +47,16 @@ const App = () => {
                     type="button"
                     className="btn"
                     onClick={() => {
-                        authNotion();
+                        if (notionIsLoading || notionToken) {
+                            return;
+                        }
+                        authNotionRedirect();
                     }}
                 >
                     {" "}
                     {notionIsLoading
                         ? "Loading..."
-                        : notionAuthDone
+                        : notionToken
                         ? "Success!"
                         : "Log me In!"}
                 </button>
@@ -58,7 +67,7 @@ const App = () => {
                     type="button"
                     className="btn"
                     onClick={() => {
-                        if (googleIsLoading || googleAuthDone) {
+                        if (googleIsLoading || googleToken) {
                             return;
                         }
                         authGoogleRedirect();
@@ -66,7 +75,7 @@ const App = () => {
                 >
                     {googleIsLoading
                         ? "Loading..."
-                        : googleAuthDone
+                        : googleToken
                         ? "Success!"
                         : "Log me In!"}
                 </button>

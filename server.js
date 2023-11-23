@@ -23,7 +23,6 @@ app.get("/getGoogleAuthURL", (req, res) => {
         access_type: "offline",
         scope: SCOPE,
     });
-    console.log(authURL);
     res.status(StatusCodes.OK).json({ authURL });
 });
 
@@ -41,6 +40,10 @@ app.post("/getGoogleToken", (req, res) => {
 });
 
 // Notion OAuth routes
+app.get("/getNotionAuthURL", (req, res) => {
+    res.status(StatusCodes.OK).json({ authURL: process.env.N_AUTH_URL });
+});
+
 app.post("/getNotionToken", async (req, res) => {
     if (req.body.code == null)
         return res.status(StatusCodes.BAD_REQUEST).send("Invalid Request");
