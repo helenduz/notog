@@ -40,7 +40,7 @@ const AppProvider = ({ children }) => {
     const authGoogleRedirect = async () => {
         try {
             // get auth URL
-            const response = await axios.get("/getAuthURL");
+            const response = await axios.get("/getGoogleAuthURL");
             const { authURL } = response.data;
             // redirect
             window.location.href = authURL;
@@ -54,7 +54,7 @@ const AppProvider = ({ children }) => {
             dispatch({
                 type: START_GOOGLE_LOADING,
             });
-            const res = await axios.post("/getToken", {
+            const res = await axios.post("/getGoogleToken", {
                 code,
             });
             console.log(res);

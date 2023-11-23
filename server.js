@@ -5,7 +5,6 @@ import * as dotenv from "dotenv";
 dotenv.config();
 
 import { StatusCodes } from "http-status-codes";
-import { createNewDoc } from "./controllers/gController.js";
 
 // middlewares
 app.use(express.json());
@@ -19,7 +18,7 @@ const googleOAuth2Client = new google.auth.OAuth2(
     process.env.G_REDIRECT_URL // Redirect URL after authentication
 );
 
-app.get("/getAuthURL", (req, res) => {
+app.get("/getGoogleAuthURL", (req, res) => {
     const authURL = googleOAuth2Client.generateAuthUrl({
         access_type: "offline",
         scope: SCOPE,
@@ -28,23 +27,65 @@ app.get("/getAuthURL", (req, res) => {
     res.status(StatusCodes.OK).json({ authURL });
 });
 
-app.post("/getToken", (req, res) => {
+app.post("/getGoogleToken", (req, res) => {
     if (req.body.code == null)
         return res.status(StatusCodes.BAD_REQUEST).send("Invalid Request");
     googleOAuth2Client.getToken(req.body.code, (err, token) => {
         if (err) {
-            console.error("Error retrieving access token", err);
+            console.error("Error retrieving Google access token: ", err);
             return res.status(StatusCodes.BAD_REQUEST);
         }
-        googleOAuth2Client.setCredentials(token);
         console.log(token);
         res.status(StatusCodes.OK).json({ token });
     });
 });
 
-app.post("/createNewDoc", createNewDoc);
-
 // Notion OAuth routes
+app.post("/getNotionToken", async (req, res) => {
+    if (req.body.code == null)
+        return res.status(StatusCodes.BAD_REQUEST).send("Invalid Request");
+
+    // encode client ID and secret in base 64
+    const encoded = Buffer.from(
+        `${process.env.N_CLIENT_ID}:${process.env.N_CLIENT_SECRET}`
+    ).toString("base64");
+
+    try {
+        var response = await fetch("https://api.notion.com/v1/oauth/token", {
+            method: "POST",
+            headers: {
+                Accept: "application/json",
+                "Content-Type": "application/json",
+                Authorization: `Basic ${encoded}`,
+            },
+            body: JSON.stringify({
+                grant_type: "authorization_code",
+                code: req.body.code, // @@ need to be a string
+                redirect_uri: process.env.N_REDIRECT_URL,
+            }),
+        });
+        response = await response.json();
+        console.log(response);
+
+        // error when exchanging for token
+        if (response.error != null) {
+            console.log(
+                "Error retrieving Notion access token: ",
+                response.error
+            );
+            return res
+                .status(StatusCodes.BAD_REQUEST)
+                .json({ error: response.error });
+        }
+
+        // success
+        res.status(StatusCodes.OK).json({ token: response.access_token });
+    } catch (error) {
+        console.error("Error retrieving Notion access token: ", error);
+        return res.status(StatusCodes.BAD_REQUEST).json({ error });
+    }
+});
+
 
 // Translation routes
 
