@@ -9,13 +9,13 @@ import {
 } from "./actions";
 
 // local storage for tokens
-const notionTokenLocal = localStorage.getItem("notionToken");
-const googleTokenLocal = localStorage.getItem("googleToken");
+const notionTokenLocal = sessionStorage.getItem("notionToken");
+const googleTokenLocal = sessionStorage.getItem("googleToken");
 const storeGoogleToken = ({ googleToken }) => {
-    localStorage.setItem("googleToken", googleToken);
+    sessionStorage.setItem("googleToken", googleToken);
 };
 const storeNotionToken = ({ notionToken }) => {
-    localStorage.setItem("notionToken", notionToken);
+    sessionStorage.setItem("notionToken", notionToken);
 };
 
 // context/reducer setup
