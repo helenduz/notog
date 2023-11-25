@@ -12,7 +12,7 @@ import {
 const notionTokenLocal = sessionStorage.getItem("notionToken");
 const googleTokenLocal = sessionStorage.getItem("googleToken");
 const storeGoogleToken = ({ googleToken }) => {
-    sessionStorage.setItem("googleToken", googleToken);
+    sessionStorage.setItem("googleToken", JSON.stringify(googleToken));
 };
 const storeNotionToken = ({ notionToken }) => {
     sessionStorage.setItem("notionToken", notionToken);
@@ -23,7 +23,7 @@ const initialAppInfo = {
     notionIsLoading: false,
     googleIsLoading: false,
     notionToken: notionTokenLocal,
-    googleToken: googleTokenLocal,
+    googleToken: googleTokenLocal ? JSON.parse(googleTokenLocal) : null,
 };
 
 const AppInfoContext = React.createContext(null);
@@ -99,9 +99,18 @@ const AppProvider = ({ children }) => {
         }
     };
 
-    const transfer = (event) => {
-        event.preventDefault();
-        console.log("start transfer");
+    const transfer = async (pageId) => {
+        const { googleToken, notionToken } = appInfo;
+        try {
+            const response = await axios.post("/transfer", {
+                pageId,
+                googleToken,
+                notionToken,
+            });
+            console.log(response);
+        } catch (error) {
+            console.log(error);
+        }
     };
 
     return (

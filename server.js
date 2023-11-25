@@ -63,7 +63,7 @@ app.post("/getNotionToken", async (req, res) => {
             },
             body: JSON.stringify({
                 grant_type: "authorization_code",
-                code: req.body.code, // @@ need to be a string
+                code: req.body.code,
                 redirect_uri: process.env.N_REDIRECT_URL,
             }),
         });
@@ -89,8 +89,9 @@ app.post("/getNotionToken", async (req, res) => {
     }
 });
 
-
-// Translation routes
+// Translation route
+import { transfer } from "./controllers/nController.js";
+app.post("/transfer", transfer);
 
 const port = process.env.PORT || 5000;
 const start = async () => {

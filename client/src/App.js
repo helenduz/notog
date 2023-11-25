@@ -1,8 +1,9 @@
 import Wrapper from "./assets/Wrapper";
 import { useAppContext } from "./handlers";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 
 const App = () => {
+    const [pageId, setPageId] = useState("");
     const {
         authNotionGetToken,
         authNotionRedirect,
@@ -15,12 +16,16 @@ const App = () => {
         googleToken,
     } = useAppContext();
 
+    const handleSubmit = (e) => {
+        e.preventDefault();
+        transfer(pageId);
+    };
+
     // detect if callback from OAuth is done
     useEffect(() => {
         // get the 'code' query parameter from URL
         const url = new URL(window.location.href);
         const authCode = url.searchParams.get("code");
-        console.log(authCode);
         // hand code to backend for token exchange
         if (authCode) {
             const scope = url.searchParams.get("scope");
@@ -82,17 +87,28 @@ const App = () => {
             </div>
 
             <h3>Enter Page ID from Notion</h3>
-            <form className="form" id="commentForm" onSubmit={transfer}>
-                <label htmlFor="pageID" className="form-label">
+            <form className="form" id="commentForm" onSubmit={handleSubmit}>
+                <label htmlFor="pageId" className="form-label">
                     Page ID
                 </label>
-                <input type="text" id="pageID" className="form-input" />
+                <input
+                    type="text"
+                    name="pageId"
+                    className="form-input"
+                    onChange={(e) => {
+                        setPageId(e.target.value);
+                    }}
+                    value={pageId}
+                />
                 <button type="submit" className="member-btn">
                     Start transfer
                 </button>
+                {/* @@ display results */}
             </form>
         </Wrapper>
     );
 };
+
+// NEXT STEP: test form state change + implement handle submit logic / transfer
 
 export default App;
