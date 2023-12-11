@@ -3,6 +3,8 @@ import {
     START_NOTION_LOADING,
     GOOGLE_AUTH_DONE,
     NOTION_AUTH_DONE,
+    START_TRANSFER,
+    TRANSFER_DONE,
 } from "./actions";
 
 const appInfoReducer = (state, action) => {
@@ -30,6 +32,19 @@ const appInfoReducer = (state, action) => {
             ...state,
             notionIsLoading: false,
             notionToken: action.token,
+        };
+    }
+    if (action.type === START_TRANSFER) {
+        return {
+            ...state,
+            transferIsLoading: true,
+        };
+    }
+    if (action.type === TRANSFER_DONE) {
+        return {
+            ...state,
+            transferIsLoading: false,
+            docURL: action.docURL,
         };
     }
 };

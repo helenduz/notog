@@ -12,8 +12,10 @@ const App = () => {
         transfer,
         notionIsLoading,
         googleIsLoading,
+        transferIsLoading,
         notionToken,
         googleToken,
+        docURL,
     } = useAppContext();
 
     const handleSubmit = (e) => {
@@ -101,9 +103,14 @@ const App = () => {
                     value={pageId}
                 />
                 <button type="submit" className="member-btn">
-                    Start transfer
+                    {transferIsLoading ? (
+                        "Transfer in Progress..."
+                    ) : docURL ? (
+                        <a href={docURL}>Click Here for Google Doc Result</a>
+                    ) : (
+                        "Start Transfer"
+                    )}
                 </button>
-                {/* @@ display results */}
             </form>
         </Wrapper>
     );

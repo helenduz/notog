@@ -6,6 +6,8 @@ import {
     START_NOTION_LOADING,
     GOOGLE_AUTH_DONE,
     NOTION_AUTH_DONE,
+    START_TRANSFER,
+    TRANSFER_DONE,
 } from "./actions";
 
 // local storage for tokens
@@ -22,8 +24,10 @@ const storeNotionToken = ({ notionToken }) => {
 const initialAppInfo = {
     notionIsLoading: false,
     googleIsLoading: false,
+    transferIsLoading: false,
     notionToken: notionTokenLocal,
     googleToken: googleTokenLocal ? JSON.parse(googleTokenLocal) : null,
+    docURL: null,
 };
 
 const AppInfoContext = React.createContext(null);
@@ -102,12 +106,18 @@ const AppProvider = ({ children }) => {
     const transfer = async (pageId) => {
         const { googleToken, notionToken } = appInfo;
         try {
+            dispatch({
+                type: START_TRANSFER,
+            });
             const response = await axios.post("/transfer", {
                 pageId,
                 googleToken,
                 notionToken,
             });
-            console.log(response);
+            dispatch({
+                type: TRANSFER_DONE,
+                docURL: response.data.docURL,
+            });
         } catch (error) {
             console.log(error);
         }
