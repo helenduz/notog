@@ -6,7 +6,33 @@ const getGoogleColorObj = (normalColorObj) => {
     };
 };
 
-const insertEmptyParagraphDefaultStyle = () => {
+const insertNewLineAndSetHeadingStyle = (headingType) => {
+    const headingParagraphStyle = {
+        namedStyleType: headingType,
+    };
+    return [
+        {
+            insertText: {
+                location: {
+                    index: 1,
+                },
+                text: "\n",
+            },
+        },
+        {
+            updateParagraphStyle: {
+                paragraphStyle: headingParagraphStyle,
+                fields: Object.keys(headingParagraphStyle).join(),
+                range: {
+                    startIndex: 1,
+                    endIndex: 2,
+                },
+            },
+        },
+    ];
+};
+
+const insertNewLineAndSetDefaultParagraphStyle = () => {
     return [
         {
             insertText: {
@@ -38,4 +64,8 @@ const defaultParagraphStyle = {
     },
 };
 
-export { getGoogleColorObj, insertEmptyParagraphDefaultStyle };
+export {
+    getGoogleColorObj,
+    insertNewLineAndSetDefaultParagraphStyle,
+    insertNewLineAndSetHeadingStyle,
+};

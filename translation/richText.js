@@ -1,32 +1,30 @@
-import Color from "color";
-import { getGoogleColorObj } from "./utils.js";
+import {
+    getTextColorObjFromString,
+    getBgColorObjFromString,
+} from "./colors.js";
 
 // handles one rich text object = one text run in Google doc / a "span"
 // returns an array with insertTextRequest followed by styleTextRequest
-export const handleRichTextObj = (richTextObject) => {
+export const handleRichTextObj = (richTextObject, headingType = null) => {
     const type = richTextObject.type;
     // @@ support for mention and equation
 
     const { annotations, plain_text, href } = richTextObject;
 
     // default foreground & backgrounds
-    var foregroundColorObj = Color("black");
-    var backgroundColorObj = Color("white");
+    var foregroundColorObj = getTextColorObjFromString("default");
+    var backgroundColorObj = null;
     const colorString = annotations.color;
     if (colorString !== "default") {
         // contains background color
         if (colorString.includes("background")) {
             const backgroundColorString = colorString.split("_")[0];
-            backgroundColorObj = Color(backgroundColorString);
+            backgroundColorObj = getBgColorObjFromString(backgroundColorString);
         } else {
             // contains foreground/text color
-            foregroundColorObj = Color(colorString);
+            foregroundColorObj = getTextColorObjFromString(colorString);
         }
     }
-
-    // transform into google API color object format
-    foregroundColorObj = getGoogleColorObj(foregroundColorObj);
-    backgroundColorObj = getGoogleColorObj(backgroundColorObj);
 
     var textStyle = {
         bold: annotations.bold,
@@ -34,18 +32,10 @@ export const handleRichTextObj = (richTextObject) => {
         underline: annotations.underline,
         strikethrough: annotations.strikethrough,
         backgroundColor: {
-            color: {
-                rgbColor: backgroundColorObj,
-            },
+            color: backgroundColorObj,
         },
         foregroundColor: {
-            color: {
-                rgbColor: foregroundColorObj,
-            },
-        },
-        fontSize: {
-            magnitude: 12,
-            unit: "PT",
+            color: foregroundColorObj,
         },
     };
 
@@ -54,6 +44,13 @@ export const handleRichTextObj = (richTextObject) => {
             url: href,
         };
         textStyle.underline = true;
+    }
+
+    if (headingType == null) {
+        textStyle.fontSize = {
+            magnitude: 12,
+            unit: "PT",
+        };
     }
 
     const insertTextRequst = {
@@ -75,6 +72,5 @@ export const handleRichTextObj = (richTextObject) => {
         },
     };
 
-    console.log([insertTextRequst, styleTextRequest]);
     return [insertTextRequst, styleTextRequest];
 };

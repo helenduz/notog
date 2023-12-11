@@ -1,14 +1,14 @@
 import Color from "color";
 import {
     getGoogleColorObj,
-    insertEmptyParagraphDefaultStyle,
+    insertNewLineAndSetDefaultParagraphStyle,
 } from "./utils.js";
 
 const paragraphBgColor = "#edd3d1";
 const warningTextColor = "#F33A17";
 
 const warningText =
-    "⚠️ This block is not supported by notog, view Notion API response below:\n";
+    "⚠️ This block is not yet supported by notog, view Notion API response below:\n";
 const warningTextStyle = {
     bold: true,
     foregroundColor: {
@@ -90,13 +90,13 @@ export const unsupportedHanlder = (block) => {
         },
     };
     return [
-        ...insertEmptyParagraphDefaultStyle(),
+        ...insertNewLineAndSetDefaultParagraphStyle(),
         insertBlockInfoRequest,
         paragraphStyleRequest,
         // the following inherits &| overwrites the paragraph style
         styleBlockInfoRequest,
         insertWarningRequest,
         styleWarningRequest,
-        ...insertEmptyParagraphDefaultStyle(),
+        ...insertNewLineAndSetDefaultParagraphStyle(),
     ];
 };
