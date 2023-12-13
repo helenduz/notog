@@ -7,7 +7,7 @@ import {
 const paragraphBgColor = "#edd3d1";
 const warningTextColor = "#F33A17";
 
-const warningText =
+const warningTextDefault =
     "⚠️ This block is not yet supported by notog, view Notion API response below:\n";
 const warningTextStyle = {
     bold: true,
@@ -39,7 +39,7 @@ const blockInfoTextStyle = {
     },
 };
 
-export const unsupportedHanlder = (block) => {
+export const unsupportedHanlder = (block, customWarningText = null) => {
     // information section
     const blockInfoText = JSON.stringify(block) + "\n";
     const insertBlockInfoRequest = {
@@ -71,6 +71,10 @@ export const unsupportedHanlder = (block) => {
         },
     };
     // warning text section
+    var warningText = warningTextDefault;
+    if (customWarningText != null) {
+        warningText = customWarningText;
+    }
     const insertWarningRequest = {
         insertText: {
             location: {

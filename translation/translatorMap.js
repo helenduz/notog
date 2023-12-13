@@ -1,4 +1,5 @@
 import { headingsHandler } from "./headings.js";
+import { imageHandler } from "./image.js";
 import { paragraphHandler } from "./paragraph.js";
 
 export const translatorMap = {
@@ -6,4 +7,5 @@ export const translatorMap = {
     heading_1: headingsHandler,
     heading_2: headingsHandler,
     heading_3: headingsHandler,
+    image: imageHandler,
 };

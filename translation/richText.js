@@ -5,7 +5,11 @@ import {
 
 // handles one rich text object = one text run in Google doc / a "span"
 // returns an array with insertTextRequest followed by styleTextRequest
-export const handleRichTextObj = (richTextObject, headingType = null) => {
+export const handleRichTextObj = (
+    richTextObject,
+    headingType = null,
+    isCaption = false
+) => {
     const type = richTextObject.type;
     // @@ support for mention and equation
 
@@ -13,6 +17,10 @@ export const handleRichTextObj = (richTextObject, headingType = null) => {
 
     // default foreground & backgrounds
     var foregroundColorObj = getTextColorObjFromString("default");
+    // caption text has a different color!
+    if (isCaption) {
+        foregroundColorObj = getTextColorObjFromString("gray");
+    }
     var backgroundColorObj = null;
     const colorString = annotations.color;
     if (colorString !== "default") {
@@ -44,6 +52,9 @@ export const handleRichTextObj = (richTextObject, headingType = null) => {
             url: href,
         };
         textStyle.underline = true;
+        textStyle.foregroundColor = {
+            color: getTextColorObjFromString("gray"),
+        };
     }
 
     if (headingType == null) {
@@ -73,4 +84,23 @@ export const handleRichTextObj = (richTextObject, headingType = null) => {
     };
 
     return [insertTextRequst, styleTextRequest];
+};
+
+export const handleRichTextArray = (
+    richTextArray,
+    headingType = null,
+    isCaption = false
+) => {
+    const reversedRichTextArray = richTextArray.slice().reverse();
+
+    const requests = [];
+    for (let i = 0; i < reversedRichTextArray.length; i++) {
+        const requestsForRichTextSpan = handleRichTextObj(
+            reversedRichTextArray[i],
+            headingType,
+            isCaption
+        );
+        requests.push(...requestsForRichTextSpan);
+    }
+    return requests;
 };
