@@ -90,8 +90,8 @@ app.post("/getNotionToken", async (req, res) => {
 });
 
 // Translation route
-import { transfer, testTransferGoogle } from "./controllers/controller.js";
-app.post("/transfer", testTransferGoogle);
+import { transfer } from "./controllers/controller.js";
+app.post("/transfer", transfer);
 
 const port = process.env.PORT || 5000;
 const start = async () => {

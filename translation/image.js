@@ -4,7 +4,7 @@ import { handleRichTextArray } from "./richText.js";
 import { insertNewLineAndSetDefaultParagraphStyle } from "./utils.js";
 import { unsupportedHanlder } from "./unsupported.js";
 
-export const imageHandler = (block) => {
+export const imageHandler = async (block) => {
     // maybe have a function that deals with file. but what it file is not an image -> how does google doc react? -> note: notion supports more image types than google, might have to convert before adding to google?
     // extra lead: in transfer controller, all api calls should be wrapped with try catch & display error info -> or maybe have overall error handling for web app
 
@@ -19,11 +19,11 @@ export const imageHandler = (block) => {
     const imageFileURLType = block.image.type; // can be "external" or "file"
     const url = block.image[imageFileURLType].url;
     // if image format is not supported, return as a unsupported block
-    const formatSupported = isImageFormatSupported(url);
-    if (!formatSupported) {
+    const { supported, format } = await isImageFormatSupported(url);
+    if (!supported) {
         return unsupportedHanlder(
             block,
-            "⚠️ This block contains an image whose format is not supported by Google Doc (accepts only JPEG/PNG/GIF). View Notion API response below:\n"
+            `⚠️ This block contains an image whose format is not supported by Google Doc (accepts only JPEG/PNG/GIF). Format detected: ${format}. View Notion API response below:\n`
         );
     }
 
@@ -44,11 +44,14 @@ export const imageHandler = (block) => {
     ];
 };
 
-const isImageFormatSupported = (url) => {
-    const format = getImageFormat(url);
+const isImageFormatSupported = async (url) => {
+    const format = await getImageFormat(url);
     // if error occured when determining format, or format is not one of PNG, JPEG, or GIF, then return false
     if (format == null) {
-        return false;
+        return {
+            supported: false,
+            format: format,
+        };
     }
     const googleAllowedFormats = new Set([
         "png",
@@ -59,9 +62,15 @@ const isImageFormatSupported = (url) => {
         "jpx",
     ]);
     if (!googleAllowedFormats.has(format)) {
-        return false;
+        return {
+            supported: false,
+            format: format,
+        };
     }
-    return true;
+    return {
+        supported: true,
+        format: format,
+    };
 };
 
 const getImageFormat = async (url) => {
@@ -69,7 +78,7 @@ const getImageFormat = async (url) => {
     try {
         const response = await axios.get(url, { responseType: "arraybuffer" });
         const buffer = Buffer.from(response.data, "binary");
-        const type = imageType(buffer);
+        const type = await imageType(buffer);
         if (type) {
             return type.ext;
         } else {

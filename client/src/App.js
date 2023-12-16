@@ -102,7 +102,11 @@ const App = () => {
                     }}
                     value={pageId}
                 />
-                <button type="submit" className="member-btn">
+                <button
+                    type="submit"
+                    className="member-btn"
+                    disabled={notionToken == null || googleToken == null}
+                >
                     {transferIsLoading ? (
                         "Transfer in Progress..."
                     ) : docURL ? (
